@@ -24,7 +24,7 @@ async function loadData() {
   const doc = new GoogleSpreadsheet(process.env.REACT_APP_SHEETS_ID);
   await doc.useServiceAccountAuth({
     client_email: process.env.REACT_APP_GOOGLE_SERVICE_ACCOUNT_EMAIL,
-    private_key: process.env.REACT_APP_GOOGLE_PRIVATE_KEY,
+    private_key: process.env.REACT_APP_GOOGLE_PRIVATE_KEY.replace('\\n', '\n'),
   });
   await doc.loadInfo(); // loads document properties and worksheets
   dataSheet = doc.sheetsById[process.env.REACT_APP_DATA_SHEET_ID]
