@@ -7,9 +7,8 @@ import NavigateNextIcon from '@mui/icons-material/NavigateNext';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import Boxes from "./Boxes"
 
-var crypto = require('crypto')
-
-// const { GoogleSpreadsheet } = require('google-spreadsheet');
+const crypto = require('crypto')
+const hostname = "https://artt-survey.herokuapp.com"
 
 function App() {
 
@@ -92,7 +91,7 @@ function App() {
   }, [allData])
 
   React.useEffect(() => {
-    fetch("http://localhost:3333/alldata").then(x => x.json()).then(x => {
+    fetch(`${hostname}/alldata`).then(x => x.json()).then(x => {
       setAllData(x)
     })
   }, [])
@@ -119,7 +118,7 @@ function App() {
       Future: result[evaluatee].future,
     }))
     // console.log("rows", rows)
-    await fetch('http://localhost:3333/submit', {
+    await fetch(`${hostname}/submit`, {
       method: 'post',
       headers: {
         // 'Accept': 'text/plain',
