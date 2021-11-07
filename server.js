@@ -22,7 +22,7 @@ let resultSheet = null
 
 async function loadData() {
   const doc = new GoogleSpreadsheet(process.env.REACT_APP_SHEETS_ID);
-  console.log(process.env.REACT_APP_GOOGLE_PRIVATE_KEY).replace('\\n', '\n')
+  console.log(process.env.REACT_APP_GOOGLE_PRIVATE_KEY.replace('\\n', '\n'))
   await doc.useServiceAccountAuth({
     client_email: process.env.REACT_APP_GOOGLE_SERVICE_ACCOUNT_EMAIL,
     private_key: process.env.REACT_APP_GOOGLE_PRIVATE_KEY.replace('\\n', '\n'),
