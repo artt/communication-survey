@@ -160,13 +160,13 @@ function App() {
 
   async function handleSubmit() {
     setSubmitting(true)
-    const rows = result.map(r => ({
+    const rows = result.map((r, i) => ({
       Timestamp: new Date().toString(),
       EvaluatorID: id,
       EvaluateeID: r.evaluatee,
       Now: r.now,
       Future: r.future,
-      Comment: comment,
+      Comment: i === 0 ? comment : "",
     }))
     await fetch(`${hostname}/submit`, {
       method: 'post',
