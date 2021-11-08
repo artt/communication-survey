@@ -26,7 +26,7 @@ export default function Boxes({ time, evaluatee, result, setPersonResult }) {
       <div
         {...rest}
         ref={ref}
-        className={`${name} ${name === result[evaluatee][time] ? "highlight" : ""}`}
+        className={`${name} ${name === result[time] ? "highlight" : ""}`}
         onClick={() => handleClick(name)}
       >
         {children}
@@ -45,6 +45,7 @@ export default function Boxes({ time, evaluatee, result, setPersonResult }) {
             gridColumn: obj[1].gc,
             gridRow: obj[1].gr,
           }}
+          key={`box${i}`}
         >
           {obj[1].text}
         </Box>)

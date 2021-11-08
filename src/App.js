@@ -3,19 +3,20 @@ import './App.scss';
 import TextField from '@mui/material/TextField';
 import Button from '@mui/material/Button';
 import IconButton from '@mui/material/IconButton';
+import Autocomplete from '@mui/material/Autocomplete';
 import NavigateNextIcon from '@mui/icons-material/NavigateNext';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import Boxes from "./Boxes"
 
-// const hostname = "http://localhost:3333"
-const hostname = "https://artt-survey.herokuapp.com"
+const hostname = "http://localhost:3333"
+// const hostname = "https://artt-survey.herokuapp.com"
 
 function App() {
 
   const [allData, setAllData] = React.useState({})
   const [tmpId, setTmpId] = React.useState('')
   const [id, setId] = React.useState('')
-  const [result, setResult] = React.useState(null)
+  const [result, setResult] = React.useState([])
   const [done, setDone] = React.useState(false)
   const [submitting, setSubmitting] = React.useState(false)
   const [filled, setFilled] = React.useState(false)
@@ -38,8 +39,11 @@ function App() {
       pstr = "คุณ" 
     }
     return(
-      <div className="question">
+      <>
         <div className="qtitle">คุณคิดว่างานของ<span className="colorize">{pstr}</span>อยู่ในกล่องไหน</div>
+        {props.isOptional &&
+          <Button onClick={() => handleRemove(props.evaluatee)} color="secondary">ลบชื่อออก</Button>
+        }
         <div className="boxbox">
           <div>
             <p>ในตอนนี้</p>
@@ -50,21 +54,42 @@ function App() {
             <Boxes time={'future'} {...props} />
           </div>
         </div>
+      </>
+    )
+  }
+
+  function AddPeople() {
+
+    // const curid = React.useState('')
+
+    return(
+      <div className="question">
+        <Autocomplete
+          // disablePortal
+          autoHighlight
+          id="combo-box-demo"
+          options={Object.entries(allData).filter(obj => !result.map(x => x.evaluatee).includes(obj[0])).map(obj => {
+            return {label: obj[1].name, id: obj[0]}
+          })}
+          renderInput={(params) => <TextField {...params} label="ค้นหาชื่อ" size="small" />}
+          onChange={(e, newValue) => handleAdd(newValue.id)}
+        />
       </div>
     )
   }
 
   React.useEffect(() => {
     if (Object.keys(allData).length > 0 && id !== '') {
-      let tmp = {}
+      let tmp = []
       let xxx = [id]
       if (allData[id].evalList)
         xxx = xxx.concat(allData[id].evalList)
       xxx.forEach(x => {
-        tmp[x] = {
+        tmp.push({
+          evaluatee: x,
           now: '',
           future: '',
-        }
+        })
       })
       setResult(tmp)
     }
@@ -82,11 +107,11 @@ function App() {
         hash: window.location.search.slice(1),
       })
     })
-    if (r.status !== 200) {
-      alert("รหัสพนักงานไม่ตรงกับลิงค์")
-      return
-    }
-    if (!(tmpId in Object.keys(allData))) {
+    // if (r.status !== 200) {
+    //   alert("รหัสพนักงานไม่ตรงกับลิงค์")
+    //   return
+    // }
+    if (!(Object.keys(allData).includes(tmpId))) {
       alert("กรุณาตรวจสอบรหัสพนักงานอีกครั้ง")
       return
     }
@@ -111,21 +136,36 @@ function App() {
 
   function checkResult() {
     if (!result) return false
-    return Object.values(result).every(x => {
+    return result.every(x => {
       if (x.now === '' || x.future === '')
         return false
       return true
     })
   }
 
+  function handleAdd(newid) {
+    let tmp = JSON.parse(JSON.stringify(result))
+    tmp.push({
+      evaluatee: newid,
+      now: '',
+      future: ''
+    })
+    setResult(tmp)
+  }
+
+  function handleRemove(removeid) {
+    // no need to copy since filter creates a new array
+    setResult(result.filter(x => x.evaluatee !== removeid))    
+  }
+
   async function handleSubmit() {
     setSubmitting(true)
-    const rows = Object.keys(result).map(evaluatee => ({
+    const rows = result.map(r => ({
       Timestamp: new Date().toString(),
       EvaluatorID: id,
-      EvaluateeID: evaluatee,
-      Now: result[evaluatee].now,
-      Future: result[evaluatee].future,
+      EvaluateeID: r.evaluatee,
+      Now: r.now,
+      Future: r.future,
       Comment: comment,
     }))
     await fetch(`${hostname}/submit`, {
@@ -142,7 +182,13 @@ function App() {
 
   function setPersonResult(evaluatee, time, box) {
     let tmp = JSON.parse(JSON.stringify(result))
-    tmp[evaluatee][time] = box
+    for (let i = 0; i < tmp.length; i ++) {
+      if (tmp[i].evaluatee === evaluatee) {
+        tmp[i][time] = box
+        break
+      }
+    }
+    console.log(tmp)
     setResult(tmp)
   }
 
@@ -173,10 +219,16 @@ function App() {
                   <h2>สวัสดีครับคุณ{allData[id].name}!</h2>
                   {/* <p>อธิบาย อธิบาย อธิบาย อธิบาย</p> */}
                   {
-                    Object.keys(result).map((evaluatee, i) =>
-                      <Question evaluatee={evaluatee} result={result} setPersonResult={setPersonResult} key={`q${i}`}/>
-                    )
+                    result.map((r, i) => {
+                      const isOptional = r.evaluatee !== id && !allData[id].evalList.includes(r.evaluatee)
+                      return(
+                        <div className={`question ${isOptional ? "optional" : ""}`} key={`q${i}`}>
+                          <Question evaluatee={r.evaluatee} result={r} setPersonResult={setPersonResult} isOptional={isOptional} />
+                        </div>
+                      )
+                    })
                   }
+                  <AddPeople />
                   <div style={{maxWidth: "600px", margin: "40px auto"}}>
                     <TextField
                       label="ความกังวล ความเห็น ข้อเสนอแนะ"

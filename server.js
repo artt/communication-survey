@@ -32,9 +32,9 @@ async function loadData() {
   resultSheet = doc.sheetsById[process.env.REACT_APP_RESULT_SHEET_ID]
   let tmp = {}
   await dataSheet.getRows().then(x => x.forEach(row => {
-    tmp[row.ID] = {
+    tmp[(row.ID).toString()] = {
       name: row.Name,
-      evalList: row.EvalList?.split(",").map(x => x.trim()),
+      evalList: row.EvalList ? row.EvalList.split(",").map(x => x.trim()) : [],
     }
   }))
   return(tmp)
