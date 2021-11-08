@@ -2,6 +2,7 @@ const express = require('express')
 const cors = require('cors')
 const bodyParser = require('body-parser')
 const { GoogleSpreadsheet } = require('google-spreadsheet');
+const crypto = require('crypto')
 
 require("dotenv").config()
 
@@ -45,6 +46,13 @@ app.get(`/`, (req, res) => {
 
 app.get(`/alldata`, (req, res) => {
   allData.then(x => res.send(x))
+})
+
+app.get(`/checkuser`, (req, res) => {
+  console.log("-- User tried to log in --")
+  console.log(req.body)
+  const compare = crypto.createHash('sha1').update(`${tmpId}${process.env.REACT_APP_HASHKEY}`).digest('hex')
+  if (req.body.hash = )
 })
 
 app.post(`/submit`, async (req, res) => {
