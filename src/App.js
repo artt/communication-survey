@@ -8,8 +8,8 @@ import NavigateNextIcon from '@mui/icons-material/NavigateNext';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import Boxes from "./Boxes"
 
-const hostname = "http://localhost:3333"
-// const hostname = "https://artt-survey.herokuapp.com"
+// const hostname = "http://localhost:3333"
+const hostname = "https://artt-survey.herokuapp.com"
 
 function App() {
 
