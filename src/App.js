@@ -7,8 +7,8 @@ import NavigateNextIcon from '@mui/icons-material/NavigateNext';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import Boxes from "./Boxes"
 
-const crypto = require('crypto')
-const hostname = "https://artt-survey.herokuapp.com"
+const hostname = "http://localhost:3333"
+// const hostname = "https://artt-survey.herokuapp.com"
 
 function App() {
 
@@ -70,16 +70,24 @@ function App() {
     }
   }, [allData, id])
 
-  function handleGo() {
+  async function handleGo() {
     // // check hash
-    // const compare = crypto.createHash('sha1').update(`${tmpId}${process.env.REACT_APP_HASHKEY}`).digest('hex')
-    // if (window.location.search.slice(1) !== compare) {
-    //   alert("รหัสพนักงานไม่ตรงกับลิงค์")
-    //   return
-    // }
+    const r = await fetch(`${hostname}/checkuser`, {
+      method: 'post',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        id: tmpId,
+        hash: window.location.search.slice(1),
+      })
+    })
+    if (r.status !== 200) {
+      alert("รหัสพนักงานไม่ตรงกับลิงค์")
+      return
+    }
     if (!(tmpId in Object.keys(allData))) {
       alert("กรุณาตรวจสอบรหัสพนักงานอีกครั้ง")
-
       return
     }
     setId(tmpId)
@@ -120,11 +128,9 @@ function App() {
       Future: result[evaluatee].future,
       Comment: comment,
     }))
-    // console.log("rows", rows)
     await fetch(`${hostname}/submit`, {
       method: 'post',
       headers: {
-        // 'Accept': 'text/plain',
         'Content-Type': 'application/json',
       },
       body: JSON.stringify(rows)

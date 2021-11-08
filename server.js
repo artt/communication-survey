@@ -48,11 +48,15 @@ app.get(`/alldata`, (req, res) => {
   allData.then(x => res.send(x))
 })
 
-app.get(`/checkuser`, (req, res) => {
+app.post(`/checkuser`, (req, res) => {
   console.log("-- User tried to log in --")
   console.log(req.body)
-  const compare = crypto.createHash('sha1').update(`${tmpId}${process.env.REACT_APP_HASHKEY}`).digest('hex')
-  if (req.body.hash = )
+  if (req.body.hash === crypto.createHash('sha1').update(`${req.body.id}${process.env.REACT_APP_HASHKEY}`).digest('hex').slice(2, 7)) {
+    res.send("OK")
+  }
+  else {
+    res.status(401).send("Invalid")
+  }
 })
 
 app.post(`/submit`, async (req, res) => {
