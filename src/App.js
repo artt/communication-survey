@@ -19,6 +19,7 @@ function App() {
   const [done, setDone] = React.useState(false)
   const [submitting, setSubmitting] = React.useState(false)
   const [filled, setFilled] = React.useState(false)
+  const [comment, setComment] = React.useState('')
 
   const theme = createTheme({
     typography: {
@@ -70,12 +71,12 @@ function App() {
   }, [allData, id])
 
   function handleGo() {
-    // check hash
-    const compare = crypto.createHash('sha1').update(`${tmpId}${process.env.REACT_APP_HASHKEY}`).digest('hex')
-    if (window.location.search.slice(1) !== compare) {
-      alert("รหัสพนักงานไม่ตรงกับลิงค์")
-      return
-    }
+    // // check hash
+    // const compare = crypto.createHash('sha1').update(`${tmpId}${process.env.REACT_APP_HASHKEY}`).digest('hex')
+    // if (window.location.search.slice(1) !== compare) {
+    //   alert("รหัสพนักงานไม่ตรงกับลิงค์")
+    //   return
+    // }
     if (!(tmpId in Object.keys(allData))) {
       alert("กรุณาตรวจสอบรหัสพนักงานอีกครั้ง")
 
@@ -112,10 +113,12 @@ function App() {
   async function handleSubmit() {
     setSubmitting(true)
     const rows = Object.keys(result).map(evaluatee => ({
+      Timestamp: new Date().toString(),
       EvaluatorID: id,
       EvaluateeID: evaluatee,
       Now: result[evaluatee].now,
       Future: result[evaluatee].future,
+      Comment: comment,
     }))
     // console.log("rows", rows)
     await fetch(`${hostname}/submit`, {
@@ -162,13 +165,25 @@ function App() {
                 </div>
               : <div className="page">
                   <h2>สวัสดีครับคุณ{allData[id].name}!</h2>
-                  <p>อธิบาย อธิบาย อธิบาย อธิบาย</p>
+                  {/* <p>อธิบาย อธิบาย อธิบาย อธิบาย</p> */}
                   {
                     Object.keys(result).map((evaluatee, i) =>
                       <Question evaluatee={evaluatee} result={result} setPersonResult={setPersonResult} key={`q${i}`}/>
                     )
                   }
-                  <Button variant="contained" onClick={handleSubmit} disabled={!filled || submitting}>ส่งคำตอบ</Button>
+                  <div style={{maxWidth: "600px", margin: "40px auto"}}>
+                    <TextField
+                      label="ความกังวล ความเห็น ข้อเสนอแนะ"
+                      fullWidth
+                      multiline
+                      rows={4}
+                      value={comment}
+                      onChange={e => setComment(e.target.value)}
+                    />
+                  </div>
+                  <div>
+                    <Button variant="contained" onClick={handleSubmit} disabled={!filled || submitting}>ส่งคำตอบ</Button>
+                  </div>
 
                 </div>
               }
