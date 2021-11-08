@@ -107,10 +107,10 @@ function App() {
         hash: window.location.search.slice(1),
       })
     })
-    // if (r.status !== 200) {
-    //   alert("รหัสพนักงานไม่ตรงกับลิงค์")
-    //   return
-    // }
+    if (r.status !== 200) {
+      alert("รหัสพนักงานไม่ตรงกับลิงค์")
+      return
+    }
     if (!(Object.keys(allData).includes(tmpId))) {
       alert("กรุณาตรวจสอบรหัสพนักงานอีกครั้ง")
       return
