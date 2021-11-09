@@ -13,33 +13,12 @@
     border-radius: 8px;
     cursor: pointer;
     opacity: 0.5;
+    padding: 10px;
   }
 
   .highlight {
     box-shadow:inset 0px 0px 0px 2px white;
     opacity: 1;
-  }
-
-  .a {
-    background-color: scale-color(red, $alpha: -50%);
-    grid-column: 1/3;
-    grid-row: 1/2;
-  }
-
-  .b {
-    background-color: scale-color(blue, $alpha: -50%);
-    grid-row: 2/3;
-  }
-
-  .c {
-    background-color: scale-color(green, $alpha: -50%);
-    grid-row: 2/3;
-  }
-
-  .d {
-    background-color: scale-color(orange, $alpha: -50%);
-    grid-column: 1/3;
-    grid-row: 3/4;
   }
 
 }

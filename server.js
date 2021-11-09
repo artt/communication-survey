@@ -2,6 +2,7 @@ const express = require('express')
 const cors = require('cors')
 const bodyParser = require('body-parser')
 const { GoogleSpreadsheet } = require('google-spreadsheet');
+const crypto = require('crypto')
 
 require("dotenv").config()
 
@@ -31,9 +32,9 @@ async function loadData() {
   resultSheet = doc.sheetsById[process.env.REACT_APP_RESULT_SHEET_ID]
   let tmp = {}
   await dataSheet.getRows().then(x => x.forEach(row => {
-    tmp[row.ID] = {
+    tmp[(row.ID).toString()] = {
       name: row.Name,
-      evalList: row.EvalList?.split(",").map(x => x.trim()),
+      evalList: row.EvalList ? row.EvalList.split(",").map(x => x.trim()) : [],
     }
   }))
   return(tmp)
@@ -45,6 +46,17 @@ app.get(`/`, (req, res) => {
 
 app.get(`/alldata`, (req, res) => {
   allData.then(x => res.send(x))
+})
+
+app.post(`/checkuser`, (req, res) => {
+  console.log("-- User tried to log in --")
+  console.log(req.body)
+  if (req.body.hash === crypto.createHash('sha1').update(`${req.body.id}${process.env.REACT_APP_HASHKEY}`).digest('hex').slice(2, 7)) {
+    res.send("OK")
+  }
+  else {
+    res.status(401).send("Invalid")
+  }
 })
 
 app.post(`/submit`, async (req, res) => {

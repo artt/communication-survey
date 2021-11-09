@@ -3,11 +3,12 @@ import './App.scss';
 import TextField from '@mui/material/TextField';
 import Button from '@mui/material/Button';
 import IconButton from '@mui/material/IconButton';
+import Autocomplete from '@mui/material/Autocomplete';
 import NavigateNextIcon from '@mui/icons-material/NavigateNext';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import Boxes from "./Boxes"
 
-const crypto = require('crypto')
+// const hostname = "http://localhost:3333"
 const hostname = "https://artt-survey.herokuapp.com"
 
 function App() {
@@ -15,10 +16,11 @@ function App() {
   const [allData, setAllData] = React.useState({})
   const [tmpId, setTmpId] = React.useState('')
   const [id, setId] = React.useState('')
-  const [result, setResult] = React.useState(null)
+  const [result, setResult] = React.useState([])
   const [done, setDone] = React.useState(false)
   const [submitting, setSubmitting] = React.useState(false)
   const [filled, setFilled] = React.useState(false)
+  const [comment, setComment] = React.useState('')
 
   const theme = createTheme({
     typography: {
@@ -37,8 +39,11 @@ function App() {
       pstr = "คุณ" 
     }
     return(
-      <div className="question">
-        <div className="qtitle">คุณคิดว่า<span className="colorize">{pstr}</span>อยากทำงานในกล่องไหน</div>
+      <>
+        <div className="qtitle">คุณคิดว่างาน<span className="colorize">{pstr}</span>อยากทำงานในกล่องไหน</div>
+        {props.isOptional &&
+          <Button onClick={() => handleRemove(props.evaluatee)} color="secondary">ลบชื่อออก</Button>
+        }
         <div className="boxbox">
           <div>
             <p>ในตอนนี้</p>
@@ -49,36 +54,65 @@ function App() {
             <Boxes time={'future'} {...props} />
           </div>
         </div>
+      </>
+    )
+  }
+
+  function AddPeople() {
+
+    // const curid = React.useState('')
+
+    return(
+      <div className="question">
+        <Autocomplete
+          // disablePortal
+          autoHighlight
+          id="combo-box-demo"
+          options={Object.entries(allData).filter(obj => !result.map(x => x.evaluatee).includes(obj[0])).map(obj => {
+            return {label: obj[1].name, id: obj[0]}
+          })}
+          renderInput={(params) => <TextField {...params} label="ค้นหาชื่อ" size="small" />}
+          onChange={(e, newValue) => handleAdd(newValue.id)}
+        />
       </div>
     )
   }
 
   React.useEffect(() => {
     if (Object.keys(allData).length > 0 && id !== '') {
-      let tmp = {}
+      let tmp = []
       let xxx = [id]
       if (allData[id].evalList)
         xxx = xxx.concat(allData[id].evalList)
       xxx.forEach(x => {
-        tmp[x] = {
+        tmp.push({
+          evaluatee: x,
           now: '',
           future: '',
-        }
+        })
       })
       setResult(tmp)
     }
   }, [allData, id])
 
-  function handleGo() {
-    // check hash
-    const compare = crypto.createHash('sha1').update(`${tmpId}${process.env.REACT_APP_HASHKEY}`).digest('hex')
-    if (window.location.search.slice(1) !== compare) {
+  async function handleGo() {
+    // // check hash
+    const r = await fetch(`${hostname}/checkuser`, {
+      method: 'post',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        id: tmpId,
+        hash: window.location.search.slice(1),
+      })
+    })
+    if (r.status !== 200) {
       alert("รหัสพนักงานไม่ตรงกับลิงค์")
       return
     }
-    if (!(tmpId in Object.keys(allData))) {
+    if (!(Object.keys(allData).includes(tmpId))) {
       alert("กรุณาตรวจสอบรหัสพนักงานอีกครั้ง")
-
       return
     }
     setId(tmpId)
@@ -102,26 +136,41 @@ function App() {
 
   function checkResult() {
     if (!result) return false
-    return Object.values(result).every(x => {
+    return result.every(x => {
       if (x.now === '' || x.future === '')
         return false
       return true
     })
   }
 
+  function handleAdd(newid) {
+    let tmp = JSON.parse(JSON.stringify(result))
+    tmp.push({
+      evaluatee: newid,
+      now: '',
+      future: ''
+    })
+    setResult(tmp)
+  }
+
+  function handleRemove(removeid) {
+    // no need to copy since filter creates a new array
+    setResult(result.filter(x => x.evaluatee !== removeid))    
+  }
+
   async function handleSubmit() {
     setSubmitting(true)
-    const rows = Object.keys(result).map(evaluatee => ({
+    const rows = result.map((r, i) => ({
+      Timestamp: new Date().toString(),
       EvaluatorID: id,
-      EvaluateeID: evaluatee,
-      Now: result[evaluatee].now,
-      Future: result[evaluatee].future,
+      EvaluateeID: r.evaluatee,
+      Now: r.now,
+      Future: r.future,
+      Comment: i === 0 ? comment : "",
     }))
-    // console.log("rows", rows)
     await fetch(`${hostname}/submit`, {
       method: 'post',
       headers: {
-        // 'Accept': 'text/plain',
         'Content-Type': 'application/json',
       },
       body: JSON.stringify(rows)
@@ -133,7 +182,13 @@ function App() {
 
   function setPersonResult(evaluatee, time, box) {
     let tmp = JSON.parse(JSON.stringify(result))
-    tmp[evaluatee][time] = box
+    for (let i = 0; i < tmp.length; i ++) {
+      if (tmp[i].evaluatee === evaluatee) {
+        tmp[i][time] = box
+        break
+      }
+    }
+    console.log(tmp)
     setResult(tmp)
   }
 
@@ -162,13 +217,31 @@ function App() {
                 </div>
               : <div className="page">
                   <h2>สวัสดีครับคุณ{allData[id].name}!</h2>
-                  <p>อธิบาย อธิบาย อธิบาย อธิบาย</p>
+                  {/* <p>อธิบาย อธิบาย อธิบาย อธิบาย</p> */}
                   {
-                    Object.keys(result).map((evaluatee, i) =>
-                      <Question evaluatee={evaluatee} result={result} setPersonResult={setPersonResult} key={`q${i}`}/>
-                    )
+                    result.map((r, i) => {
+                      const isOptional = r.evaluatee !== id && !allData[id].evalList.includes(r.evaluatee)
+                      return(
+                        <div className={`question ${isOptional ? "optional" : ""}`} key={`q${i}`}>
+                          <Question evaluatee={r.evaluatee} result={r} setPersonResult={setPersonResult} isOptional={isOptional} />
+                        </div>
+                      )
+                    })
                   }
-                  <Button variant="contained" onClick={handleSubmit} disabled={!filled || submitting}>ส่งคำตอบ</Button>
+                  <AddPeople />
+                  <div style={{maxWidth: "600px", margin: "40px auto"}}>
+                    <TextField
+                      label="ความกังวล ความเห็น ข้อเสนอแนะ"
+                      fullWidth
+                      multiline
+                      rows={4}
+                      value={comment}
+                      onChange={e => setComment(e.target.value)}
+                    />
+                  </div>
+                  <div>
+                    <Button variant="contained" onClick={handleSubmit} disabled={!filled || submitting}>ส่งคำตอบ</Button>
+                  </div>
 
                 </div>
               }
