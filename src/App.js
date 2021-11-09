@@ -38,14 +38,14 @@ function App() {
     }
     return(
       <div className="question">
-        <div className="qtitle">คุณคิดว่างานของ<span className="colorize">{pstr}</span>อยู่ในกล่องไหน</div>
+        <div className="qtitle">คุณคิดว่า<span className="colorize">{pstr}</span>อยากทำงานในกล่องไหน</div>
         <div className="boxbox">
           <div>
             <p>ในตอนนี้</p>
             <Boxes time={'now'} {...props} />
           </div>
           <div>
-            <p>ในอีกสามปี</p>
+            <p>ในอีก 3–5 ปี</p>
             <Boxes time={'future'} {...props} />
           </div>
         </div>
