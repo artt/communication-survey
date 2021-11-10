@@ -71,7 +71,7 @@ function App() {
           options={Object.entries(allData).filter(obj => !result.map(x => x.evaluatee).includes(obj[0])).map(obj => {
             return {label: obj[1].name, id: obj[0]}
           })}
-          renderInput={(params) => <TextField {...params} label="ค้นหาชื่อ" size="small" />}
+          renderInput={(params) => <TextField {...params} label="ค้นหาชื่อ เพื่อเพิ่มคนอื่น ๆ (optional)" size="small" />}
           onChange={(e, newValue) => handleAdd(newValue.id)}
         />
       </div>
