@@ -1,0 +1,22 @@
+{
+  "files": {
+    "main.css": "/communication-survey/static/css/main.71942dbc.chunk.css",
+    "main.js": "/communication-survey/static/js/main.4cbf8697.chunk.js",
+    "main.js.map": "/communication-survey/static/js/main.4cbf8697.chunk.js.map",
+    "runtime-main.js": "/communication-survey/static/js/runtime-main.fea1ce8a.js",
+    "runtime-main.js.map": "/communication-survey/static/js/runtime-main.fea1ce8a.js.map",
+    "static/js/2.ec54e6a5.chunk.js": "/communication-survey/static/js/2.ec54e6a5.chunk.js",
+    "static/js/2.ec54e6a5.chunk.js.map": "/communication-survey/static/js/2.ec54e6a5.chunk.js.map",
+    "static/js/3.5d5c826d.chunk.js": "/communication-survey/static/js/3.5d5c826d.chunk.js",
+    "static/js/3.5d5c826d.chunk.js.map": "/communication-survey/static/js/3.5d5c826d.chunk.js.map",
+    "index.html": "/communication-survey/index.html",
+    "static/css/main.71942dbc.chunk.css.map": "/communication-survey/static/css/main.71942dbc.chunk.css.map",
+    "static/js/2.ec54e6a5.chunk.js.LICENSE.txt": "/communication-survey/static/js/2.ec54e6a5.chunk.js.LICENSE.txt"
+  },
+  "entrypoints": [
+    "static/js/runtime-main.fea1ce8a.js",
+    "static/js/2.ec54e6a5.chunk.js",
+    "static/css/main.71942dbc.chunk.css",
+    "static/js/main.4cbf8697.chunk.js"
+  ]
+}
